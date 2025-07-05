@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>JVM笔记 |  Botem666&#39;s Blog</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="page-"
+  class="article article-type-page"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  JVM笔记
+</h1>
+ 
+
+      
+    </header>
+       
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="JVM"><a href="#JVM" class="headerlink" title="JVM"></a>JVM</h1><p>定义：Java Virtual Machine - java程序的运行环境（java二进制字节码的运行环境）</p>
+<p>好处：</p>
+<ul>
+<li>一次编写，到处运行</li>
+<li>自动内存管理，垃圾回收功能</li>
+<li>数组下标越界检查</li>
+<li>多态</li>
+</ul>
+<p>比较：</p>
+<p><img src="/../../../image/JVM/069b7bbdc07f3aff7ca2248e9ad26243.png" alt="截图"></p>
+<p>结构：</p>
+<p><img src="/../../../image/JVM/757c89765633f552a45f70f7b1e6d491.png" alt="截图"></p>
+<h2 id="内存结构"><a href="#内存结构" class="headerlink" title="内存结构"></a>内存结构</h2><h3 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h3><p>Program Counter Register 程序计数器（寄存器）</p>
+<p>java程序计数器以pc寄存器实现</p>
+<p>jvm指令执行流程：jvm指令-&gt;解释器（-&gt;程序计数器）-&gt;机器码-&gt;cpu</p>
+<p>程序计数器作用：记录吓一跳条vm指令的执行地址</p>
+<p>特点：</p>
+<ul>
+<li>线程私有</li>
+<li>不会存在内存溢出</li>
+</ul>
+<h3 id="虚拟机栈"><a href="#虚拟机栈" class="headerlink" title="虚拟机栈"></a>虚拟机栈</h3><p>Java Virtual Machine Stacks -java 虚拟机栈</p>
+<p>栈-线程运行需要的内存空间</p>
+<p>栈帧（参数，局部变量，返回地址）-每个方法运行是需要的内存</p>
+<ul>
+<li>每个线程运行时需要的内存，称为虚拟机栈</li>
+<li>每个栈由多个栈帧（Frame）组成，对应着每次方法调用时所占用的内存</li>
+<li>每个线程只能有一个活动栈帧，对应着当前正在执行的那个方法</li>
+</ul>
+<p>问题：</p>
+<p>垃圾回收是否涉及占内存？-只回收堆内存</p>
+<p>栈内存分配越大越好？-越大反而线程数越少</p>
+<p>方法内的局部变量是否线程安全？</p>
+<ul>
+<li>方法内局部变量没有逃离方法的作用访问，线程安全</li>
+<li>如果是局部变量引用了对象，并逃离方法的作用方法，需考虑线程安全</li>
+</ul>
+<p>内存溢出：</p>
+<ul>
+<li>栈帧过多导致栈内存溢出</li>
+<li>栈帧过大导致溢出</li>
+</ul>
+<p>线程诊断案例：</p>
+<p>cpu占用高 （linux）</p>
+<ul>
+<li>用top命令定位哪个进程占用高</li>
+<li>ps H -eo pid,tid,%cpu | grep 进程id   （用ps命令进一步定位那个线程占用高）</li>
+<li>jstack命令<ul>
+<li>根据线程id找到对应的代码</li>
+</ul>
+</li>
+</ul>
+<p>程序迟迟未响应：</p>
+<ul>
+<li>jstack命令 +进程id     查看详细信息</li>
+</ul>
+<h3 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h3><p>为本地方法运行提供存储空间</p>
+<h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><p>Heap 堆 - 通过new关键字，创建对象都会使用堆内存</p>
+<p>特点</p>
+<ul>
+<li>线程共享的，队中的对象都需要考虑线程安全问题</li>
+<li>有垃圾回收机制</li>
+</ul>
+<p>内存溢出</p>
+<p>报错：java heap space   暴露问题：改 vm options  如-Xmx  8m</p>
+<p>内存诊断</p>
+<p>jsp命令 -查看当前系统有哪些java进程</p>
+<p>jmap命令 -查看堆内存占用情况（jmap -heap 进程id）</p>
+<p>jconsloe -图形界面，多功能监测工具，可连续监测</p>
+<p>案例：垃圾回收之后，内存占用依旧很高</p>
+<ul>
+<li>jvirsualvm工具，heap dump 堆转储 查看快照，排查内存占用最大的对象</li>
+</ul>
+<h3 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h3><p><img src="/../../../image/JVM/b0a5369e33d58da0db16445b87107f43.png" alt="截图"></p>
+<p>内存溢出</p>
+<ul>
+<li><p>1.8之前会导致永久代内存溢出</p>
+<pre><code>  报错：PermGen space	
+
+  演示暴露：-XX：MaxPermSize=8m
+</code></pre>
+</li>
+<li><p>1.8之后会导致云空间内存溢出</p>
+<pre><code> 报错：Meatspace    
+
+  演示暴露：-XX：MaxMetaspaceSize=8m
+</code></pre>
+</li>
+</ul>
+<p>常量池</p>
+<pre><code>    就是一张表，虚拟机指令根据这张常量表找到要执行的类名、方法名、参数类型、字面量等信息
+</code></pre>
+<p>运行时常量池</p>
+<pre><code>    常量池是*.class 文件中的，当该类被加载，它的常量池信息就会放入运行时常量池，并把里面的符号地址变为真实地址
+</code></pre>
+<p>Stringtable 特性</p>
+<ul>
+<li><p>常量池中的字符串仅是符号，第一次用到时才变为对象</p>
+</li>
+<li><p>利用串池的机制，来避免重复创建字符串对象</p>
+</li>
+<li><p>字符串变量拼接的原理是 StringBuilder (1.8)</p>
+</li>
+<li><p>字符串常量拼接的原理是编译期优化</p>
+</li>
+<li><p>存在垃圾回收</p>
+</li>
+<li><p>可以使用 intern 方法，主动将串池中还没有的字符串对象放入串池</p>
+<p>1.8 将这个字符串对象尝试放入串池，如果有则并不会放入，如果没有则放入串池，会把串池中的对象返回</p>
+<p>1.6 将这个字符串对象尝试放入串池，如果有则并不会放入，如果没有会把此对象复制一份，放入串会把串池中的对象返回池</p>
+</li>
+</ul>
+<p>Stringtable 调优</p>
+<ul>
+<li>调整-xx:StringTableSize&#x3D;桶个数</li>
+<li>考虑将字符串对象是否入池</li>
+</ul>
+<h2 id="直接内存"><a href="#直接内存" class="headerlink" title="直接内存"></a>直接内存</h2><p>Direct Memory</p>
+<ul>
+<li>常见于 NIO 操作时，用于数据缓冲区</li>
+<li>分配回收成本较高，但读写性能高</li>
+<li>不受JVM 内存回收管理</li>
+</ul>
+<p>内存溢出：ava.lang.OutOfMemoryError: Direct buffer memory</p>
+<p>回收和分配</p>
+<ul>
+<li><p>使用了Unsafe 对象完成直接内存的分配回收，并且回收需要主动调用 freeMemory 方法</p>
+</li>
+<li><p>ByteBuffer 的实现类内部，使用了 Cleaner (虚引用)来监测 ByteBuffer 对象，一旦 ByteBuffer 对象被垃圾回收，那么就会由 ReferenceHandler 线程通过 Cleaner 的clean方法调用 ireeMemory 来释放直接内存</p>
+</li>
+<li><p>-XX:+DisableExplicitGC 现实的禁用gc回收，会导致直接内存的回收，所以用unsafe的freeMenmory方法手动回收</p>
+</li>
+</ul>
+<h2 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h2><p>如何判断对象可以回收</p>
+<ul>
+<li><p>引用计数法</p>
+</li>
+<li><p>可达性分析算法</p>
+<p>Java 虚拟机中的垃圾回收器采用可达性分析来探索所有存活的对象</p>
+<p>扫描堆中的对象，看是否能够沿着GC Root对象 为起点的引用链找到该对象，找不到，表示可以回收</p>
+<p>哪些对象可以作为 GC Root ?</p>
+</li>
+<li><p>四种引用（强引用，弱引用，软引用，虚引用，终结器引用）</p>
+<p>1.强引用</p>
+</li>
+</ul>
+<p>-只有所有 GC Roots 对象都不过[强引用]引用该对象，该对象才能被垃圾回收</p>
+<p>  2.软引用(SoftReference)<br>-仅有软引用引用该对象时，在垃圾回收后，内存仍不足时会再次出发垃圾回收，回收软引用对象<br>-可以配合引用队列来释放软引用自身</p>
+<p>  3.弱引用(WeakReference)<br>-仅有弱引用引用该对象时，在垃圾回收时，无论内存是否充足，都会回收弱引用对象<br>-可以配合引用队列来释放弱引用自身</p>
+<p>  4.虚引用(PhantomReference<br>-必须配合引用队列使用，主要配合 BvteBuffer 使用，被引用对象回收时，会将虚引用入队，由Reference Handler 线程调用虚引用相关方法释放直接内存</p>
+<p>  5.终结器引用 (FinalReference)<br>-无需手动编码，但其内部配合引用队列使用，在垃圾回收时，终结器引用入队 (被引用对象暂时没有被回收)，再由 Finalizer 线程通过终结器引用找到被引用对象并调用它的 finalize 方法，第二次 GC时才能回收被引用对象</p>
+<p>垃圾回收算法</p>
+<ul>
+<li>标记清除-速度快，有内存碎片<img src="/../../../image/JVM/bf0092212b52d3a19cb7ed4a79830194.png" alt="截图"></li>
+<li>标记整理-速度慢，没有内存碎片<img src="/../../../image/JVM/7bc4c9e3418315cfc09f8950add990e4.png" alt="截图"></li>
+<li>复制-没有内存碎片，需要占用双倍空间<img src="/../../../image/JVM/ac97f648782affcf8a6efbf191791deb.png" alt="截图"></li>
+</ul>
+<p>分代垃圾回收</p>
+<ul>
+<li><p><img src="/../../../image/JVM/f54ba692838e2eb3c58a1d4d242bd01c.png" alt="截图"></p>
+</li>
+<li><p>相关参数<img src="/../../../image/JVM/90c8fa4265d044953e5a801aea3a916a.png" alt="截图"></p>
+</li>
+</ul>
+<p>垃圾回收器</p>
+<ul>
+<li>串行<ul>
+<li><p>单线程</p>
+</li>
+<li><p>堆内存小，适合个人电脑</p>
+<p>配置开关:   -XX:+UseSerialGC&#x3D;Serial+SerialOld</p>
+<p>Serial应用复制算法，SerialOld应用在老年代使用标记整理算法<img src="/../../../image/JVM/8ae024e339c2e268b7a98d1bdd74631c.png" alt="截图"></p>
+</li>
+</ul>
+</li>
+<li>吞吐量优先<ul>
+<li><p>多线程</p>
+</li>
+<li><p>堆内存大，多核cpu</p>
+</li>
+<li><p>让单位时间内，stw的时间最短（多食少餐）</p>
+<p>配置开关：</p>
+<p>-XX:+UseParallelGC~ -XX:+UseParallel0ldGC (老年代\标记整理算法)  -&gt;（1.8前者默认开启）（其中一个开启都会连带另一个开启） （并行运行）</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>-XX:+UseAdaptiveSizePolicy  -&gt;（新生代自适应大小）<br>-XX:GCTimeRatio&#x3D;ratio  -&gt;（达成目标，公式为1&#x2F;(1+ratio)，默认ratio&#x3D;99，建议ratio为19）<br>-XX:MaxGCPauseMillis&#x3D;ms  -&gt;（达成目标，默认200ms）<br>-XX:ParallelGCThreads&#x3D;n -&gt;（并行线程数）<img src="/../../../image/JVM/7f1065454af2437457d99dbe7e48b5e0.png" alt="截图"></p>
+<ul>
+<li>响应时间优先<ul>
+<li><p>多线程</p>
+</li>
+<li><p>堆内存大，多核cpu</p>
+</li>
+<li><p>极可能让单次stw的时间最短（少食多餐）</p>
+<p>配置开关：</p>
+<p>-XX:+UseConcMarkSweepGC~ -XX:+UseParNewGC~ Serial0ld （前者cms并发标记清除，老年代）（后者新生代，复制算法）（cms并发失败转为Serial0ld 补救）</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>-XX:ParallelGCThreads&#x3D;n ~ -XX:ConcGCThreads&#x3D;threads  （前者并行线程数，后者并发线程数）（后者建议是前者的1&#x2F;4）<br>-XX:CMSInitiatingOccupancyFraction&#x3D;percent （设置执行回收时的内存占比）<br>-XX:+CMSScavengeBeforeRemark  （重新标记前新生代垃圾回收开关）（+开启，-关闭）<img src="/../../../image/JVM/476aad7de28d9a6b927cc927ce942957.png" alt="截图"></p>
+<ul>
+<li>G1<img src="/../../../image/JVM/29e25fd6f934f51b8d7e5e7d578066f5.png" alt="截图"><ul>
+<li><p>G1垃圾回收阶段<img src="/../../../image/JVM/f1c7a4d962f879848b0e04e6861fd43b.png" alt="截图"></p>
+</li>
+<li><p>Young Collection</p>
+<p>E伊甸园，S幸存区，O老年代<img src="/../../../image/JVM/c222f680262ff696d1ab5eff0cd891dd.png" alt="截图"><img src="/../../../image/JVM/3a5d1c76fb9826cc07621eb27ad06fb2.png" alt="截图"><img src="/../../../image/JVM/2e76f463fba7b6bb42ff57f97191b764.png" alt="截图"></p>
+</li>
+<li><p>Young Collection+CM<img src="/../../../image/JVM/85c296cd975c3b7f38453a589cc7fff6.png" alt="截图"></p>
+</li>
+<li><p>Mixed Collection<img src="/../../../image/JVM/98521b9f36d597ca17b848bac8dcfaee.png" alt="截图"></p>
+</li>
+<li><p>Full GC<img src="/../../../image/JVM/fd71ce4cc0146a80b2f7d1f7343a5d78.png" alt="截图"></p>
+</li>
+<li><p>Young Collection跨代引用</p>
+<p>新生代回收的跨代引用 (老年代引用新生代) 问题</p>
+<p>老年代维护card table（卡表），新生代维护remember set （涉及到引用标记为脏卡）</p>
+<p><img src="/../../../image/JVM/dc355996c0b8eace683de7ff32ae02b1.png" alt="截图"></p>
+</li>
+<li><p>Remark</p>
+<p>三色标记法，黑色（存活），灰色（处理中），白色（未处理或垃圾）</p>
+<p><img src="/../../../image/JVM/caa7410820fd8e34ce9e9220cf6482cd.png" alt="截图"></p>
+</li>
+<li><p>jdk 8u20字符串去重<img src="/../../../image/JVM/70128c480c643a19617c0bde8ae907ab.png" alt="截图"></p>
+</li>
+<li><p>jdk 8u40并发标记类卸载<img src="/../../../image/JVM/bec4fa8d0b648df5112b043f19275ac1.png" alt="截图"></p>
+</li>
+<li><p>jdk 8u60回收巨型对象<img src="/../../../image/JVM/5ad5c5199fca919148e6af329d4a127c.png" alt="截图"></p>
+</li>
+<li><p>jdk9 并发标记起始时间调整<img src="/../../../image/JVM/594b8146595579334d631d2dfeea6977.png" alt="截图"></p>
+</li>
+<li><p>jdk9 更高效的回收</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>垃圾回收调优 </p>
+<ul>
+<li><p>调优领域</p>
+<ul>
+<li>内存</li>
+<li>锁竞争</li>
+<li>cpu占用</li>
+<li>io</li>
+</ul>
+</li>
+<li><p>确定目标</p>
+<ul>
+<li>低延迟or高吞吐量，选择合适的回收器</li>
+<li>CMS，G1，ZGC</li>
+<li>ParallelGC</li>
+<li>Zing</li>
+</ul>
+</li>
+<li><p>最快的GC不是发生GC<img src="/../../../image/JVM/f69c99b6aa1aa9e78d8f63cd4e05ac72.png" alt="截图"></p>
+</li>
+<li><p>新生代调优</p>
+<p><img src="/../../../image/JVM/0f5ee1df5fdfd1852589f203924483c1.png" alt="截图"></p>
+<ul>
+<li>幸存区大到能保留[当前活跃对象+需要晋升对象]</li>
+<li>晋升闻值配置得当，让长时间存活对象尽快晋升<img src="/../../../image/JVM/77faa552e5891d07a5d6729d8367f2e4.png" alt="截图"></li>
+</ul>
+</li>
+<li><p>老年代调优<img src="/../../../image/JVM/25397cb9d51699ef848993d3a109a5f3.png" alt="截图"></p>
+</li>
+<li><p>案例</p>
+</li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://botem666.github.io/tags/%E6%8A%80%E6%9C%AF/JVM/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  
+    
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2025
+        <i class="ri-heart-fill heart_icon"></i> Botem666
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="Botem666&#39;s Blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E6%97%85%E8%A1%8C/">旅行</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E6%91%84%E5%BD%B1/">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>
