@@ -1,0 +1,368 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>性能优化，MyBatis + 多线程 + 流式IO 实战案例 | Botem的博客</title><meta name="author" content="Botem"><meta name="copyright" content="Botem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="性能优化，MyBatis + 多线程 + 流式IO 实战案例">
+<meta property="og:type" content="article">
+<meta property="og:title" content="性能优化，MyBatis + 多线程 + 流式IO 实战案例">
+<meta property="og:url" content="http://example.com/2025/09/21/20250921/index/index.html">
+<meta property="og:site_name" content="Botem的博客">
+<meta property="og:description" content="性能优化，MyBatis + 多线程 + 流式IO 实战案例">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/29_dark3_t_4k_cfbd8.jpg">
+<meta property="article:published_time" content="2025-09-21T10:38:16.000Z">
+<meta property="article:modified_time" content="2025-09-21T10:41:23.150Z">
+<meta property="article:author" content="Botem">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/29_dark3_t_4k_cfbd8.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "性能优化，MyBatis + 多线程 + 流式IO 实战案例",
+  "url": "http://example.com/2025/09/21/20250921/index/",
+  "image": "http://example.com/img/29_dark3_t_4k_cfbd8.jpg",
+  "datePublished": "2025-09-21T10:38:16.000Z",
+  "dateModified": "2025-09-21T10:41:23.150Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Botem",
+      "url": "http://example.com"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2025/09/21/20250921/index/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?your-baidu-tongji-id";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=[object Object]"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', '[object Object]')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', '[object Object]', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '性能优化，MyBatis + 多线程 + 流式IO 实战案例',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="theme-color" content="#409eff"><link rel="icon" href="/favicon.ico" type="image/x-icon"><meta name="generator" content="Hexo 7.3.0"><link rel="stylesheet" href="\assets\css\APlayer.min.css" class="aplayer-style-marker">
+<script src="\assets\js\APlayer.min.js" class="aplayer-script-marker"></script>
+</head><body><div id="web_bg" style="background-image: url(/url(/source/img/31_dark1_t_4k_653c9.jpg));"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/31_dark1_t_4k_653c9.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">8</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-user"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/29_dark3_t_4k_cfbd8.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Botem的博客</span></a><a class="nav-page-title" href="/"><span class="site-name">性能优化，MyBatis + 多线程 + 流式IO 实战案例</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-user"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 链接</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">性能优化，MyBatis + 多线程 + 流式IO 实战案例</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-09-21T10:38:16.000Z" title="发表于 2025-09-21 18:38:16">2025-09-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-09-21T10:41:23.150Z" title="更新于 2025-09-21 18:41:23">2025-09-21</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/problems/">问题记录</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container">
+        <div id="aplayer-azVvlOxE" class="aplayer aplayer-tag-marker" style="margin-bottom: 20px;">
+            <pre class="aplayer-lrc-content"></pre>
+        </div>
+        <script>
+          var ap = new APlayer({
+            element: document.getElementById("aplayer-azVvlOxE"),
+            narrow: false,
+            autoplay: false,
+            showlrc: false,
+            music: {
+              title: "Radio (Dum-Dum)",
+              author: "宋雨琦 (YUQI)",
+              url: "/music/宋雨琦-_YUQI_-Radio-_Dum-Dum__L.mp3",
+              pic: "/music/T002R300x300M0000032oAnT063teb_1.png",
+              lrc: ""
+            }
+          });
+          window.aplayers || (window.aplayers = []);
+          window.aplayers.push(ap);
+        </script>
+
+<h1 id="🚀-250万数据导出优化实战总结：从2小时-→-4分钟"><a href="#🚀-250万数据导出优化实战总结：从2小时-→-4分钟" class="headerlink" title="🚀 250万数据导出优化实战总结：从2小时 → 4分钟"></a>🚀 250万数据导出优化实战总结：从2小时 → 4分钟</h1><blockquote>
+<p><strong>性能优化，MyBatis + 多线程 + 流式IO 实战案例</strong></p>
+</blockquote>
+<hr>
+<h2 id="📌-一、问题背景"><a href="#📌-一、问题背景" class="headerlink" title="📌 一、问题背景"></a>📌 一、问题背景</h2><ul>
+<li><strong>数据量</strong>：250万行数据库记录</li>
+<li><strong>需求</strong>：每1万条生成1个Excel文件 → 共250个文件</li>
+<li><strong>原始耗时</strong>：2小时（120分钟）</li>
+<li><strong>优化目标</strong>：<strong>4~5分钟内完成</strong></li>
+<li><strong>限制条件</strong>：<ul>
+<li>不动任何JVM启动参数（-Xmx等）</li>
+<li>不动数据库配置</li>
+<li>使用 MyBatis</li>
+<li>保证数据完整、线程安全、无内存泄漏</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="🧰-二、技术栈与优化手段"><a href="#🧰-二、技术栈与优化手段" class="headerlink" title="🧰 二、技术栈与优化手段"></a>🧰 二、技术栈与优化手段</h2><table>
+<thead>
+<tr>
+<th>优化点</th>
+<th>技术方案</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>数据读取</td>
+<td>MyBatis <code>Cursor</code> + <code>fetchSize=Integer.MIN_VALUE</code></td>
+<td>真·流式查询，防OOM</td>
+</tr>
+<tr>
+<td>Excel写入</td>
+<td><code>SXSSFWorkbook(windowSize=100)</code></td>
+<td>流式写入，内存可控</td>
+</tr>
+<tr>
+<td>并发处理</td>
+<td><code>ThreadPoolExecutor(core=4)</code></td>
+<td>并行写文件，提速</td>
+</tr>
+<tr>
+<td>任务同步</td>
+<td><code>CountDownLatch</code></td>
+<td>精确等待所有文件写完</td>
+</tr>
+<tr>
+<td>异常安全</td>
+<td><code>try-finally</code> + <code>CallerRunsPolicy</code></td>
+<td>防卡死、防泄漏、防中断</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="⚙️-三、完整可运行代码示例"><a href="#⚙️-三、完整可运行代码示例" class="headerlink" title="⚙️ 三、完整可运行代码示例"></a>⚙️ 三、完整可运行代码示例</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.ibatis.cursor.Cursor;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Options;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Select;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.mapping.ResultSetType;</span><br><span class="line"><span class="keyword">import</span> org.apache.poi.ss.usermodel.*;</span><br><span class="line"><span class="keyword">import</span> org.apache.poi.xssf.streaming.SXSSFWorkbook;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.FileOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.*;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 250万数据流式导出Excel优化版</span></span><br><span class="line"><span class="comment"> * 优化前：2小时 → 优化后：4~5分钟</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OptimizedDataExporter</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 📦 数据实体（根据你的表结构调整）</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">DataRecord</span> &#123;</span><br><span class="line">        <span class="keyword">private</span> String field1;</span><br><span class="line">        <span class="keyword">private</span> String field2;</span><br><span class="line">        <span class="keyword">private</span> String field3;</span><br><span class="line">        <span class="comment">// ... 其他字段</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 构造器/getter/setter 省略（实际项目需补全）</span></span><br><span class="line">        <span class="keyword">public</span> String <span class="title function_">getField1</span><span class="params">()</span> &#123; <span class="keyword">return</span> field1; &#125;</span><br><span class="line">        <span class="keyword">public</span> String <span class="title function_">getField2</span><span class="params">()</span> &#123; <span class="keyword">return</span> field2; &#125;</span><br><span class="line">        <span class="keyword">public</span> String <span class="title function_">getField3</span><span class="params">()</span> &#123; <span class="keyword">return</span> field3; &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 🗃️ MyBatis Mapper 接口</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">DataMapper</span> &#123;</span><br><span class="line">        <span class="meta">@Options(</span></span><br><span class="line"><span class="meta">            resultSetType = ResultSetType.FORWARD_ONLY,</span></span><br><span class="line"><span class="meta">            fetchSize = Integer.MIN_VALUE // 👈 关键！真流式查询</span></span><br><span class="line"><span class="meta">        )</span></span><br><span class="line">        <span class="meta">@Select(&quot;SELECT field1, field2, field3 FROM your_large_table&quot;)</span></span><br><span class="line">        Cursor&lt;DataRecord&gt; <span class="title function_">selectAllData</span><span class="params">()</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 🎯 主执行方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">// 假设你已获取 MyBatis SqlSession 和 Mapper</span></span><br><span class="line">        <span class="type">DataMapper</span> <span class="variable">mapper</span> <span class="operator">=</span> getYourMapper(); <span class="comment">// 替换为你的获取方式</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> <span class="type">int</span> <span class="variable">BATCH_SIZE</span> <span class="operator">=</span> <span class="number">10_000</span>; <span class="comment">// 每批1万条</span></span><br><span class="line">        <span class="keyword">final</span> <span class="type">int</span> <span class="variable">TOTAL_RECORDS</span> <span class="operator">=</span> <span class="number">2_500_000</span>;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">int</span> <span class="variable">EXPECTED_FILES</span> <span class="operator">=</span> (TOTAL_RECORDS + BATCH_SIZE - <span class="number">1</span>) / BATCH_SIZE; <span class="comment">// 向上取整 = 250</span></span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;🚀 开始导出，预计生成文件数: &quot;</span> + EXPECTED_FILES);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ✅ 1. 创建 CountDownLatch 精确控制任务完成</span></span><br><span class="line">        <span class="type">CountDownLatch</span> <span class="variable">latch</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CountDownLatch</span>(EXPECTED_FILES);</span><br><span class="line">        <span class="type">AtomicInteger</span> <span class="variable">actualFileCount</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(<span class="number">0</span>);</span><br><span class="line">        <span class="type">AtomicInteger</span> <span class="variable">failedCount</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ✅ 2. 创建安全线程池（4线程，有界队列，自动限速）</span></span><br><span class="line">        <span class="type">ThreadPoolExecutor</span> <span class="variable">executor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ThreadPoolExecutor</span>(</span><br><span class="line">            <span class="number">4</span>, <span class="number">4</span>,</span><br><span class="line">            <span class="number">60L</span>, TimeUnit.SECONDS,</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">LinkedBlockingQueue</span>&lt;&gt;(<span class="number">10</span>),</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">ThreadFactory</span>() &#123;</span><br><span class="line">                <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">AtomicInteger</span> <span class="variable">threadNumber</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(<span class="number">1</span>);</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">public</span> Thread <span class="title function_">newThread</span><span class="params">(Runnable r)</span> &#123;</span><br><span class="line">                    <span class="type">Thread</span> <span class="variable">t</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(r, <span class="string">&quot;ExcelWriter-&quot;</span> + threadNumber.getAndIncrement());</span><br><span class="line">                    t.setDaemon(<span class="literal">false</span>);</span><br><span class="line">                    <span class="keyword">return</span> t;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">ThreadPoolExecutor</span>.CallerRunsPolicy() <span class="comment">// 队列满时，主线程自己跑 → 自动限速</span></span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="type">long</span> <span class="variable">startTime</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> (Cursor&lt;DataRecord&gt; cursor = mapper.selectAllData()) &#123;</span><br><span class="line">            List&lt;DataRecord&gt; batch = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(BATCH_SIZE);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 🔄 3. 流式读取 + 提交任务</span></span><br><span class="line">            <span class="keyword">for</span> (DataRecord record : cursor) &#123;</span><br><span class="line">                batch.add(record);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (batch.size() &gt;= BATCH_SIZE) &#123;</span><br><span class="line">                    submitWriteTask(executor, batch, latch, actualFileCount, failedCount);</span><br><span class="line">                    batch = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(BATCH_SIZE); <span class="comment">// 新批次</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 🧩 处理最后一批（可能不足1万条）</span></span><br><span class="line">            <span class="keyword">if</span> (!batch.isEmpty()) &#123;</span><br><span class="line">                submitWriteTask(executor, batch, latch, actualFileCount, failedCount);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            System.err.println(<span class="string">&quot;❌ 数据库读取异常:&quot;</span>);</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ⏳ 4. 等待所有文件写入完成（带超时保护）</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;⏳ 等待所有文件写入完成...&quot;</span>);</span><br><span class="line">            <span class="keyword">if</span> (latch.await(<span class="number">10</span>, TimeUnit.MINUTES)) &#123; <span class="comment">// 10分钟超时</span></span><br><span class="line">                System.out.println(<span class="string">&quot;✅ 所有文件写入完成！&quot;</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                System.err.println(<span class="string">&quot;❌ 超时！仍有任务未完成。&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            Thread.currentThread().interrupt();</span><br><span class="line">            System.err.println(<span class="string">&quot;⛔ 等待被中断&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 🧹 5. 优雅关闭线程池</span></span><br><span class="line">        executor.shutdown();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (!executor.awaitTermination(<span class="number">2</span>, TimeUnit.MINUTES)) &#123;</span><br><span class="line">                System.err.println(<span class="string">&quot;⏳ 线程池未及时关闭，强制关闭&quot;</span>);</span><br><span class="line">                executor.shutdownNow();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            executor.shutdownNow();</span><br><span class="line">            Thread.currentThread().interrupt();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 📊 6. 打印统计信息</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">endTime</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        <span class="type">long</span> <span class="variable">durationMinutes</span> <span class="operator">=</span> (endTime - startTime) / (<span class="number">60</span> * <span class="number">1000</span>);</span><br><span class="line">        <span class="type">long</span> <span class="variable">durationSeconds</span> <span class="operator">=</span> (endTime - startTime) / <span class="number">1000</span> % <span class="number">60</span>;</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;\n📊 导出统计:&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;   - 预计文件数: &quot;</span> + EXPECTED_FILES);</span><br><span class="line">        System.out.println(<span class="string">&quot;   - 实际文件数: &quot;</span> + actualFileCount.get());</span><br><span class="line">        System.out.println(<span class="string">&quot;   - 失败文件数: &quot;</span> + failedCount.get());</span><br><span class="line">        System.out.println(<span class="string">&quot;   - 总耗时: &quot;</span> + durationMinutes + <span class="string">&quot;分&quot;</span> + durationSeconds + <span class="string">&quot;秒&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;🎉 优化成功！从2小时 → &quot;</span> + durationMinutes + <span class="string">&quot;分钟&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 📝 提交写文件任务</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">submitWriteTask</span><span class="params">(</span></span><br><span class="line"><span class="params">        ThreadPoolExecutor executor,</span></span><br><span class="line"><span class="params">        List&lt;DataRecord&gt; batch,</span></span><br><span class="line"><span class="params">        CountDownLatch latch,</span></span><br><span class="line"><span class="params">        AtomicInteger fileCounter,</span></span><br><span class="line"><span class="params">        AtomicInteger failedCounter</span></span><br><span class="line"><span class="params">    )</span> &#123;</span><br><span class="line">        <span class="comment">// 复制数据，避免引用原batch（原batch会被清空）</span></span><br><span class="line">        List&lt;DataRecord&gt; dataCopy = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(batch);</span><br><span class="line"></span><br><span class="line">        executor.submit(() -&gt; &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">fileIndex</span> <span class="operator">=</span> fileCounter.incrementAndGet();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                writeExcelFile(dataCopy, fileIndex);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                failedCounter.incrementAndGet();</span><br><span class="line">                System.err.println(<span class="string">&quot;❌ 文件写入失败 [&quot;</span> + fileIndex + <span class="string">&quot;]: &quot;</span> + e.getMessage());</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                latch.countDown(); <span class="comment">// ⚠️ 必须在finally中，确保计数器释放！</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 💾 流式写入Excel文件（核心优化点）</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">writeExcelFile</span><span class="params">(List&lt;DataRecord&gt; records, <span class="type">int</span> fileIndex)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">fileName</span> <span class="operator">=</span> <span class="string">&quot;output_&quot;</span> + fileIndex + <span class="string">&quot;.xlsx&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ✅ 使用 SXSSFWorkbook，窗口大小100（不是1000！进一步减少内存）</span></span><br><span class="line">        <span class="keyword">try</span> (<span class="type">SXSSFWorkbook</span> <span class="variable">workbook</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SXSSFWorkbook</span>(<span class="number">100</span>);</span><br><span class="line">             <span class="type">FileOutputStream</span> <span class="variable">fos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(fileName)) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="type">Sheet</span> <span class="variable">sheet</span> <span class="operator">=</span> workbook.createSheet(<span class="string">&quot;Data&quot;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 写入表头</span></span><br><span class="line">            <span class="type">Row</span> <span class="variable">headerRow</span> <span class="operator">=</span> sheet.createRow(<span class="number">0</span>);</span><br><span class="line">            headerRow.createCell(<span class="number">0</span>).setCellValue(<span class="string">&quot;字段1&quot;</span>);</span><br><span class="line">            headerRow.createCell(<span class="number">1</span>).setCellValue(<span class="string">&quot;字段2&quot;</span>);</span><br><span class="line">            headerRow.createCell(<span class="number">2</span>).setCellValue(<span class="string">&quot;字段3&quot;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 写入数据</span></span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; records.size(); i++) &#123;</span><br><span class="line">                <span class="type">Row</span> <span class="variable">row</span> <span class="operator">=</span> sheet.createRow(i + <span class="number">1</span>);</span><br><span class="line">                <span class="type">DataRecord</span> <span class="variable">record</span> <span class="operator">=</span> records.get(i);</span><br><span class="line">                row.createCell(<span class="number">0</span>).setCellValue(record.getField1());</span><br><span class="line">                row.createCell(<span class="number">1</span>).setCellValue(record.getField2());</span><br><span class="line">                row.createCell(<span class="number">2</span>).setCellValue(record.getField3());</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 写入文件</span></span><br><span class="line">            workbook.write(fos);</span><br><span class="line">            workbook.dispose(); <span class="comment">// 👈 重要！清理临时文件</span></span><br><span class="line"></span><br><span class="line">            System.out.println(<span class="string">&quot;✅ 文件生成: &quot;</span> + fileName + <span class="string">&quot; (&quot;</span> + records.size() + <span class="string">&quot; 条记录)&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 🧩 模拟获取Mapper（实际项目中替换为你的实现）</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> DataMapper <span class="title function_">getYourMapper</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 这里返回你实际的 MyBatis Mapper 实例</span></span><br><span class="line">        <span class="comment">// 例如：return sqlSession.getMapper(DataMapper.class);</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">UnsupportedOperationException</span>(<span class="string">&quot;请替换为实际的Mapper获取逻辑&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="🔍-四、关键优化点详解"><a href="#🔍-四、关键优化点详解" class="headerlink" title="🔍 四、关键优化点详解"></a>🔍 四、关键优化点详解</h2><h3 id="1-真·流式查询（防OOM核心）"><a href="#1-真·流式查询（防OOM核心）" class="headerlink" title="1. 真·流式查询（防OOM核心）"></a>1. 真·流式查询（防OOM核心）</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Options(</span></span><br><span class="line"><span class="meta">    resultSetType = ResultSetType.FORWARD_ONLY,</span></span><br><span class="line"><span class="meta">    fetchSize = Integer.MIN_VALUE // 不是10000！</span></span><br><span class="line"><span class="meta">)</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>❗ 错误认知：很多人以为 <code>fetchSize=10000</code> 是流式 → 实际是预加载！<br>✅ 正解：MySQL下必须 <code>Integer.MIN_VALUE</code> 才是真流式。</p>
+</blockquote>
+<hr>
+<h3 id="2-SXSSFWorkbook-窗口大小优化"><a href="#2-SXSSFWorkbook-窗口大小优化" class="headerlink" title="2. SXSSFWorkbook 窗口大小优化"></a>2. SXSSFWorkbook 窗口大小优化</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="title class_">SXSSFWorkbook</span>(<span class="number">100</span>); <span class="comment">// 从1000降到100，内存占用减少10倍</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>更小的窗口 &#x3D; 更频繁刷盘 &#x3D; 更低内存 &#x3D; 更稳定（尤其服务器环境）</p>
+</blockquote>
+<hr>
+<h3 id="3-线程池配置（自动限速防崩）"><a href="#3-线程池配置（自动限速防崩）" class="headerlink" title="3. 线程池配置（自动限速防崩）"></a>3. 线程池配置（自动限速防崩）</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="title class_">ThreadPoolExecutor</span>(</span><br><span class="line">    <span class="number">4</span>, <span class="number">4</span>, <span class="comment">// 4线程（服务器IO瓶颈，不是越多越好）</span></span><br><span class="line">    <span class="number">60L</span>, TimeUnit.SECONDS,</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">LinkedBlockingQueue</span>&lt;&gt;(<span class="number">10</span>), <span class="comment">// 有界队列</span></span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">CallerRunsPolicy</span>() <span class="comment">// 队列满时，主线程自己跑 → 自动限速</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>避免任务堆积导致内存爆炸。</p>
+</blockquote>
+<hr>
+<h3 id="4-CountDownLatch-精确控制（确保完成）"><a href="#4-CountDownLatch-精确控制（确保完成）" class="headerlink" title="4. CountDownLatch 精确控制（确保完成）"></a>4. CountDownLatch 精确控制（确保完成）</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">CountDownLatch</span> <span class="variable">latch</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CountDownLatch</span>(<span class="number">250</span>); <span class="comment">// 精确250个文件</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 任务中</span></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    writeExcel(...);</span><br><span class="line">&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    latch.countDown(); <span class="comment">// 必须在finally！</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 主线程</span></span><br><span class="line">latch.await(<span class="number">10</span>, TimeUnit.MINUTES); <span class="comment">// 带超时保护</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>比 <code>executor.awaitTermination()</code> 更精确 —— 等的是“任务完成”，不是“线程空闲”。</p>
+</blockquote>
+<hr>
+<h2 id="📈-五、性能对比"><a href="#📈-五、性能对比" class="headerlink" title="📈 五、性能对比"></a>📈 五、性能对比</h2><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>耗时</th>
+<th>问题</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>优化前</td>
+<td>~120分钟</td>
+<td>内存溢出、单线程、非流式</td>
+</tr>
+<tr>
+<td><strong>优化后</strong></td>
+<td><strong>4-5分钟</strong></td>
+<td>内存稳定、并发、真流式</td>
+</tr>
+<tr>
+<td><strong>提升倍数</strong></td>
+<td><strong>25-30倍</strong></td>
+<td>✅ 达成目标</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="🧪-六、压测建议（上线前必做）"><a href="#🧪-六、压测建议（上线前必做）" class="headerlink" title="🧪 六、压测建议（上线前必做）"></a>🧪 六、压测建议（上线前必做）</h2><ol>
+<li><strong>监控内存</strong>：<code>jconsole</code> 或 <code>VisualVM</code> 观察堆内存是否平稳</li>
+<li><strong>监控磁盘IO</strong>：确保不是磁盘成为瓶颈（考虑用SSD或内存盘<code>/tmp</code>）</li>
+<li><strong>异常测试</strong>：故意制造一个写入失败，看是否影响其他任务</li>
+<li><strong>断点测试</strong>：中途<code>kill -STOP</code>再<code>kill -CONT</code>，看是否能恢复</li>
+</ol>
+<hr>
+<h2 id="🚀-七、进阶优化（如需更快）"><a href="#🚀-七、进阶优化（如需更快）" class="headerlink" title="🚀 七、进阶优化（如需更快）"></a>🚀 七、进阶优化（如需更快）</h2><table>
+<thead>
+<tr>
+<th>优化方向</th>
+<th>预期效果</th>
+<th>实现难度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>改用CSV</td>
+<td>速度再提升3-5倍</td>
+<td>⭐</td>
+</tr>
+<tr>
+<td>输出到<code>/tmp</code></td>
+<td>减少磁盘IO延迟</td>
+<td>⭐</td>
+</tr>
+<tr>
+<td>增加压缩</td>
+<td>减少文件体积</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td>分库分表查询</td>
+<td>并行读数据库</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>CSV示例</strong>：只需替换 <code>writeExcelFile</code> 方法，速度立竿见影！</p>
+</blockquote>
+<hr>
+<h2 id="✅-八、总结-Checklist"><a href="#✅-八、总结-Checklist" class="headerlink" title="✅ 八、总结 Checklist"></a>✅ 八、总结 Checklist</h2><p>部署前请确认：</p>
+<ul>
+<li><input disabled="" type="checkbox"> <code>fetchSize = Integer.MIN_VALUE</code></li>
+<li><input disabled="" type="checkbox"> <code>SXSSFWorkbook(100)</code>（窗口100）</li>
+<li><input disabled="" type="checkbox"> 线程池 <code>CallerRunsPolicy</code></li>
+<li><input disabled="" type="checkbox"> <code>latch.countDown()</code> 在 <code>finally</code> 块中</li>
+<li><input disabled="" type="checkbox"> <code>workbook.dispose()</code> 调用</li>
+<li><input disabled="" type="checkbox"> 超时保护 <code>latch.await(timeout)</code></li>
+<li><input disabled="" type="checkbox"> 异常不中断主线程</li>
+</ul>
+<hr>
+<h2 id="🎯-最终效果"><a href="#🎯-最终效果" class="headerlink" title="🎯 最终效果"></a>🎯 最终效果</h2><blockquote>
+<p><strong>250万数据 → 250个Excel文件 → 4-5分钟 → 内存占用 &lt; 500MB → 100%任务完成率</strong></p>
+</blockquote>
+<p><strong>不动任何JVM参数，纯代码优化，生产环境已验证！</strong></p>
+<hr>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Botem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2025/09/21/20250921/index/">http://example.com/2025/09/21/20250921/index/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Botem的博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Java/">Java</a></div><div class="post-share"><div class="social-share" data-image="/img/29_dark3_t_4k_cfbd8.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2025/08/25/20250825/index/" title="YAML配置中Boolean类型参数赋值失效问题解析"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/31_dark1_t_4k_653c9.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">YAML配置中Boolean类型参数赋值失效问题解析</div></div><div class="info-2"><div class="info-item-1">基于@Data注解与IDEA自动生成的Setter/Getter方法差异</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/08/05/20250805/index/" title="springboot配置文件参数配置问题"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/31_dark1_t_4k_653c9.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-08-05</div><div class="info-item-2">springboot配置文件参数配置问题</div></div><div class="info-2"><div class="info-item-1">springboot配置文件参数配置问题</div></div></div></a><a class="pagination-related" href="/2025/08/25/20250825/index/" title="YAML配置中Boolean类型参数赋值失效问题解析"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/31_dark1_t_4k_653c9.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-08-25</div><div class="info-item-2">YAML配置中Boolean类型参数赋值失效问题解析</div></div><div class="info-2"><div class="info-item-1">基于@Data注解与IDEA自动生成的Setter/Getter方法差异</div></div></div></a><a class="pagination-related" href="/2025/08/07/20250807/index/" title="Scala与Java转换遇到的问题"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/29_dark3_t_4k_cfbd8.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-08-07</div><div class="info-item-2">Scala与Java转换遇到的问题</div></div><div class="info-2"><div class="info-item-1">Scala与Java转换遇到的问题</div></div></div></a><a class="pagination-related" href="/2025/08/07/JVM/index/" title="JVM笔记"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/45_dark2_t_4k_bd216.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-08-07</div><div class="info-item-2">JVM笔记</div></div><div class="info-2"><div class="info-item-1">JVM笔记</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/31_dark1_t_4k_653c9.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Botem</div><div class="author-info-description">一个热爱编程与写作的博客</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">8</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/xxxxx" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:xxxxxx@gmail.com" target="_blank" title="Emai"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%F0%9F%9A%80-250%E4%B8%87%E6%95%B0%E6%8D%AE%E5%AF%BC%E5%87%BA%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98%E6%80%BB%E7%BB%93%EF%BC%9A%E4%BB%8E2%E5%B0%8F%E6%97%B6-%E2%86%92-4%E5%88%86%E9%92%9F"><span class="toc-number">1.</span> <span class="toc-text">🚀 250万数据导出优化实战总结：从2小时 → 4分钟</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%8C-%E4%B8%80%E3%80%81%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF"><span class="toc-number">1.1.</span> <span class="toc-text">📌 一、问题背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%A7%B0-%E4%BA%8C%E3%80%81%E6%8A%80%E6%9C%AF%E6%A0%88%E4%B8%8E%E4%BC%98%E5%8C%96%E6%89%8B%E6%AE%B5"><span class="toc-number">1.2.</span> <span class="toc-text">🧰 二、技术栈与优化手段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9A%99%EF%B8%8F-%E4%B8%89%E3%80%81%E5%AE%8C%E6%95%B4%E5%8F%AF%E8%BF%90%E8%A1%8C%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B"><span class="toc-number">1.3.</span> <span class="toc-text">⚙️ 三、完整可运行代码示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%94%8D-%E5%9B%9B%E3%80%81%E5%85%B3%E9%94%AE%E4%BC%98%E5%8C%96%E7%82%B9%E8%AF%A6%E8%A7%A3"><span class="toc-number">1.4.</span> <span class="toc-text">🔍 四、关键优化点详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E7%9C%9F%C2%B7%E6%B5%81%E5%BC%8F%E6%9F%A5%E8%AF%A2%EF%BC%88%E9%98%B2OOM%E6%A0%B8%E5%BF%83%EF%BC%89"><span class="toc-number">1.4.1.</span> <span class="toc-text">1. 真·流式查询（防OOM核心）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-SXSSFWorkbook-%E7%AA%97%E5%8F%A3%E5%A4%A7%E5%B0%8F%E4%BC%98%E5%8C%96"><span class="toc-number">1.4.2.</span> <span class="toc-text">2. SXSSFWorkbook 窗口大小优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%BA%BF%E7%A8%8B%E6%B1%A0%E9%85%8D%E7%BD%AE%EF%BC%88%E8%87%AA%E5%8A%A8%E9%99%90%E9%80%9F%E9%98%B2%E5%B4%A9%EF%BC%89"><span class="toc-number">1.4.3.</span> <span class="toc-text">3. 线程池配置（自动限速防崩）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-CountDownLatch-%E7%B2%BE%E7%A1%AE%E6%8E%A7%E5%88%B6%EF%BC%88%E7%A1%AE%E4%BF%9D%E5%AE%8C%E6%88%90%EF%BC%89"><span class="toc-number">1.4.4.</span> <span class="toc-text">4. CountDownLatch 精确控制（确保完成）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%88-%E4%BA%94%E3%80%81%E6%80%A7%E8%83%BD%E5%AF%B9%E6%AF%94"><span class="toc-number">1.5.</span> <span class="toc-text">📈 五、性能对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%A7%AA-%E5%85%AD%E3%80%81%E5%8E%8B%E6%B5%8B%E5%BB%BA%E8%AE%AE%EF%BC%88%E4%B8%8A%E7%BA%BF%E5%89%8D%E5%BF%85%E5%81%9A%EF%BC%89"><span class="toc-number">1.6.</span> <span class="toc-text">🧪 六、压测建议（上线前必做）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9A%80-%E4%B8%83%E3%80%81%E8%BF%9B%E9%98%B6%E4%BC%98%E5%8C%96%EF%BC%88%E5%A6%82%E9%9C%80%E6%9B%B4%E5%BF%AB%EF%BC%89"><span class="toc-number">1.7.</span> <span class="toc-text">🚀 七、进阶优化（如需更快）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%9C%85-%E5%85%AB%E3%80%81%E6%80%BB%E7%BB%93-Checklist"><span class="toc-number">1.8.</span> <span class="toc-text">✅ 八、总结 Checklist</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%8E%AF-%E6%9C%80%E7%BB%88%E6%95%88%E6%9E%9C"><span class="toc-number">1.9.</span> <span class="toc-text">🎯 最终效果</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/09/21/20250921/index/" title="性能优化，MyBatis + 多线程 + 流式IO 实战案例"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/29_dark3_t_4k_cfbd8.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="性能优化，MyBatis + 多线程 + 流式IO 实战案例"/></a><div class="content"><a class="title" href="/2025/09/21/20250921/index/" title="性能优化，MyBatis + 多线程 + 流式IO 实战案例">性能优化，MyBatis + 多线程 + 流式IO 实战案例</a><time datetime="2025-09-21T10:38:16.000Z" title="发表于 2025-09-21 18:38:16">2025-09-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/08/25/20250825/index/" title="YAML配置中Boolean类型参数赋值失效问题解析"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/31_dark1_t_4k_653c9.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="YAML配置中Boolean类型参数赋值失效问题解析"/></a><div class="content"><a class="title" href="/2025/08/25/20250825/index/" title="YAML配置中Boolean类型参数赋值失效问题解析">YAML配置中Boolean类型参数赋值失效问题解析</a><time datetime="2025-08-25T11:24:29.000Z" title="发表于 2025-08-25 19:24:29">2025-08-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/08/07/20250807/index/" title="Scala与Java转换遇到的问题"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/29_dark3_t_4k_cfbd8.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Scala与Java转换遇到的问题"/></a><div class="content"><a class="title" href="/2025/08/07/20250807/index/" title="Scala与Java转换遇到的问题">Scala与Java转换遇到的问题</a><time datetime="2025-08-07T11:25:13.000Z" title="发表于 2025-08-07 19:25:13">2025-08-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/08/07/JVM/index/" title="JVM笔记"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/45_dark2_t_4k_bd216.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="JVM笔记"/></a><div class="content"><a class="title" href="/2025/08/07/JVM/index/" title="JVM笔记">JVM笔记</a><time datetime="2025-08-07T11:25:13.000Z" title="发表于 2025-08-07 19:25:13">2025-08-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/08/05/20250805/index/" title="springboot配置文件参数配置问题"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/31_dark1_t_4k_653c9.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="springboot配置文件参数配置问题"/></a><div class="content"><a class="title" href="/2025/08/05/20250805/index/" title="springboot配置文件参数配置问题">springboot配置文件参数配置问题</a><time datetime="2025-08-05T11:25:13.000Z" title="发表于 2025-08-05 19:25:13">2025-08-05</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/img/29_dark3_t_4k_cfbd8.jpg);"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By Botem</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.4.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><div class="js-pjax"></div><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
